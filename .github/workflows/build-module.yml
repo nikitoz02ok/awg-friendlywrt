@@ -6,13 +6,15 @@ on:
       branch:
         description: "FriendlyWrt branch (e.g. master)"
         required: true
-        default: "master"
+        default: "master-v24.10"
       target:
         description: "Target (e.g. rockchip)"
         required: true
+        default: "rockchip"
       subtarget:
         description: "Subtarget (e.g. armv8)"
         required: true
+        default: "armv8"
 
 jobs:
   build:
