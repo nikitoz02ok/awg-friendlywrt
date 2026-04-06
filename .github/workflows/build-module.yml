@@ -19,7 +19,7 @@ jobs:
       - name: Checkout repo
         uses: actions/checkout@v4
 
-      # 🔹 Install dependencies
+      # 🔹 Dependencies
       - name: Install dependencies
         run: |
           sudo apt-get update
@@ -34,7 +34,6 @@ jobs:
         run: |
           git clone https://github.com/friendlyarm/friendlywrt.git
           cd friendlywrt
-          git checkout "master-v24.10"
 
       # 🔹 Setup feeds
       - name: Setup feeds
@@ -51,7 +50,7 @@ jobs:
           cp -r ../amneziawg-tools package/
           cp -r ../luci-proto-amneziawg package/
 
-      # 🔹 Configure build
+      # 🔹 Configure build (target + packages)
       - name: Configure build
         run: |
           cd friendlywrt
@@ -63,6 +62,15 @@ jobs:
           CONFIG_PACKAGE_luci-proto-amneziawg=y
           CONFIG_PACKAGE_luci-i18n-amneziawg-ru=y
           EOF
+          make defconfig
+
+      # 🔹 Patch kernel config for crypto modules
+      - name: Enable crypto modules
+        run: |
+          cd friendlywrt
+          echo "CONFIG_CRYPTO_USER=m" >> .config
+          echo "CONFIG_CRYPTO_LIB_CHACHA20=m" >> .config
+          echo "CONFIG_CRYPTO_CHACHA20_NEON=m" >> .config
           make defconfig
 
       # 🔹 Cache DL folder
@@ -85,7 +93,7 @@ jobs:
           cd friendlywrt
           make toolchain/install -j$(nproc) || make toolchain/install -j1 V=s
 
-      # 🔹 Build kernel (required for kmod)
+      # 🔹 Build kernel (with crypto)
       - name: Build kernel
         run: |
           cd friendlywrt
